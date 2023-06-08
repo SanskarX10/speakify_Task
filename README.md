@@ -21,24 +21,30 @@ Submission for speakify task by Sanskar Shrivastava
 ## Installation
 
 1. Clone the repository:
-
+   ```
    git clone https://github.com/your-username/speakify.git
+   ```
    
 2. Create a virtual environment and activate it
-    
+    ```
     python -m venv myenv
     source myenv/bin/activate
+    ```
     
 3.Install the dependencies:
+   ```
     pip install -r requirements.txt
+   ```
     
 4. Start the Redis server by
-    going into redis-windows-master and clicking on redis-server.exe
+    Go into redis-windows-master and clicking on redis-server.exe
     and then opening redis-cli.exe and typing PING in that so it returns PONG
     
 5. Make Migrations:
+    ```
     python manage.py makemigrations
     python manage.py migrate
+    ```
     
     
 ## Configuration
