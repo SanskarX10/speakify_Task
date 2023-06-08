@@ -9,7 +9,7 @@ Submission for speakify task by Sanskar Shrivastava
 - User registration and login
 - Update user status (online/offline)
 - Real-time WebSocket Connection based on Matching Interests
-- Uses WSGI server instead of WSGI
+- Uses ASGI server instead of WSGI
 
 ## Technologies Used
 
@@ -37,8 +37,8 @@ Submission for speakify task by Sanskar Shrivastava
    ```
     
 4. Start the Redis server by
-    Go into redis-windows-master and clicking on redis-server.exe
-    and then opening redis-cli.exe and typing PING in that so it returns PONG
+    * Go into redis-windows-master and open redis-server.exe
+    * and then opening redis-cli.exe and typing PING in that so it returns PONG and the setup is complete
     
 5. Make Migrations:
     ```
