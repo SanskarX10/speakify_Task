@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Speakify</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <!-- Include a colorful Bootstrap theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cosmo/bootstrap.min.css">
+    <style>
+        .gradient-background {
+            background: linear-gradient(to bottom right, #49a8f2, #2652e9);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .welcome-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            /* Increased the width for larger buttons */
+            height: 48px;
+            /* Increased the height for larger buttons */
+        }
+        
+        .toggle-switch input {
+            display: none;
+        }
+        
+        .toggle-switch-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 48px;
+            /* Increased the border-radius for rounded buttons */
+            background-color: #ccc;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.4s;
+        }
+        
+        .toggle-switch-label:before {
+            content: "";
+            position: absolute;
+            width: 32px;
+            /* Increased the width for larger buttons */
+            height: 32px;
+            /* Increased the height for larger buttons */
+            border-radius: 50%;
+            background-color: #fff;
+            top: 8px;
+            /* Adjusted the top position for larger buttons */
+            left: 8px;
+            /* Adjusted the left position for larger buttons */
+            transition: transform 0.4s;
+        }
+        
+        .toggle-switch-input:checked+.toggle-switch-label {
+            background-color: #49a8f2;
+        }
+        
+        .toggle-switch-input:checked+.toggle-switch-label:before {
+            transform: translateX(32px);
+            /* Adjusted the translateX value for larger buttons */
+        }
+        
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            /* Adjusted the top position for larger buttons */
+            right: 20px;
+            /* Adjusted the right position for larger buttons */
+            padding: 10px 20px;
+            /* Increased the padding for larger buttons */
+            border-radius: 30px;
+            /* Increased the border-radius for rounded buttons */
+            background-color: #f00;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            line-height: 1;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-button:hover {
+            background-color: #c00;
+        }
+        
+        .notification {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 5px;
+        }
+        
+        .connected-user-card {
+            height: 300%;
+            /* Four times the original height */
+        }
+        
+        .table-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .table-container table {
+            width: 100%;
+        }
+        
+        .table-container th {
+            background-color: #49a8f2;
+            color: #fff;
+        }
+        
+        .table-container td {
+            padding: 10px;
+        }
+        
+        .table-container tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .connect-button-container {
+            margin-top: 30px;
+        }
+        
+        .connect-button {
+            padding: 10px 30px;
+            border-radius: 30px;
+            background-color: #49a8f2;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .connect-button:hover {
+            background-color: #2652e9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gradient-background">
+        <div id="notification-container"></div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-9">
+                    <h1 class="welcome-text">Welcome to Speakify Task, {{ current_user.fullname }}</h1>
+                    <form action="{% url 'update_status' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <label for="offline" class="mr-2">Offline</label>
+                            <input type="radio" name="status" id="offline" value="offline">
+                            <label for="online" class="mr-2">Online</label>
+                            <input type="radio" name="status" id="online" value="online">
+                            <button type="submit" class="btn btn-primary">Update Status</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-5">
+                        {% if messages %}
+                        <div id="message-container" class="alert alert-success">
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-sm-4">
+                    <div class="table-container" id="user-table" style="display: none;">
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <td id="suggested-user-name">{{ users.fullname }}</td>
+                                    <td id="suggested-user-gender">{{ users.gender }}</td>
+                                    <td id="suggested-user-country">{{ users.country }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center connect-button-container">
+                <div class="col-md-9 text-center">
+                    <a id="connect-button" class="connect-button">Connect</a>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+        </div>
+    </div>
+
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        const delay = 2000;
+
+        // function to hide the message after the delay
+        setTimeout(function() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, delay);
+
+        const connectButton = document.getElementById('connect-button');
+        connectButton.addEventListener('click', function() {
+            const userTable = document.getElementById('user-table');
+            userTable.style.display = 'block';
+
+
+            const userName = document.getElementById('suggested-user-name').innerText;
+            const userGender = document.getElementById('suggested-user-gender').innerText;
+            const userCountry = document.getElementById('suggested-user-country').innerText;
+
+            const socket = new WebSocket(`ws://localhost:8000/ws/chat/${userId}/`);
+            socket.onopen = function() {
+                // send the user details as a JSON object
+                console.log('WebSocket connection established.');
+                const userDetails = {
+                    name: userName,
+                    gender: userGender,
+                    country: userCountry
+                };
+                socket.send(JSON.stringify(userDetails));
+            };
+
+            socket.onmessage = function(event) {
+                // handle receiving messages from the server
+                const message = JSON.parse(event.data);
+
+                console.log(message);
+            };
+        });
+    </script>
+
+</body>
+
+</html>

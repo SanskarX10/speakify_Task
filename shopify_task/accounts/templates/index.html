@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Speakify</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <!-- Include a colorful Bootstrap theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cosmo/bootstrap.min.css">
+    <style>
+        .background-image {
+            background-image: url("https://cdn.pixabay.com/photo/2016/09/29/11/37/chatting-1702651_1280.jpg");
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .background-image::before {
+            content: "";
+            background: inherit;
+            filter: blur(100px);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .content-wrapper {
+            text-align: center;
+        }
+        
+        .welcome-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: #6b9fffe2;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-image">
+        <div class="container">
+            <div class="content-wrapper">
+                <h1 class="welcome-text">Welcome to Speakify</h1>
+                <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">Login</a>
+                <a href="{% url 'signup' %}" class="btn btn-secondary rounded-pill">Signup</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>
