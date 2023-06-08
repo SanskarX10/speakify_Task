@@ -45,6 +45,10 @@ Submission for speakify task by Sanskar Shrivastava
     python manage.py makemigrations
     python manage.py migrate
     ```
+ 6. Run server:
+    ```
+    python manage.py runserver
+    ```
     
     
 ## Configuration
