@@ -16,12 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-#from accounts import routing
+from accounts import routing
 
 
 urlpatterns = [
     path('', include('accounts.urls')),
-    path('admin/', admin.site.urls)
-    #re_path(r'^ws/', include(routing.websocket_urlpatterns))
+    path('admin/', admin.site.urls),
+    re_path(r'^ws/', include(routing.websocket_urlpatterns))
     
 ]

@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Speakify</title>
-    <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <!-- Include a colorful Bootstrap theme -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.0/dist/cosmo/bootstrap.min.css">
     <style>
         .gradient-background {
@@ -31,9 +29,7 @@
             position: relative;
             display: inline-block;
             width: 80px;
-            /* Increased the width for larger buttons */
             height: 48px;
-            /* Increased the height for larger buttons */
         }
         
         .toggle-switch input {
@@ -45,7 +41,6 @@
             width: 100%;
             height: 100%;
             border-radius: 48px;
-            /* Increased the border-radius for rounded buttons */
             background-color: #ccc;
             position: relative;
             cursor: pointer;
@@ -56,15 +51,11 @@
             content: "";
             position: absolute;
             width: 32px;
-            /* Increased the width for larger buttons */
             height: 32px;
-            /* Increased the height for larger buttons */
             border-radius: 50%;
             background-color: #fff;
             top: 8px;
-            /* Adjusted the top position for larger buttons */
             left: 8px;
-            /* Adjusted the left position for larger buttons */
             transition: transform 0.4s;
         }
         
@@ -74,19 +65,14 @@
         
         .toggle-switch-input:checked+.toggle-switch-label:before {
             transform: translateX(32px);
-            /* Adjusted the translateX value for larger buttons */
         }
         
         .logout-button {
             position: absolute;
             top: 20px;
-            /* Adjusted the top position for larger buttons */
             right: 20px;
-            /* Adjusted the right position for larger buttons */
             padding: 10px 20px;
-            /* Increased the padding for larger buttons */
             border-radius: 30px;
-            /* Increased the border-radius for rounded buttons */
             background-color: #f00;
             color: #fff;
             font-weight: bold;
@@ -106,11 +92,6 @@
             background-color: #fff;
             color: #000;
             border-radius: 5px;
-        }
-        
-        .connected-user-card {
-            height: 300%;
-            /* Four times the original height */
         }
         
         .table-container {
@@ -153,6 +134,21 @@
         
         .connect-button:hover {
             background-color: #2652e9;
+        }
+        
+        .disconnect-button {
+            padding: 10px 30px;
+            border-radius: 30px;
+            background-color: #f00;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            display: none;
+        }
+        
+        .disconnect-button:hover {
+            background-color: #c00;
         }
     </style>
 </head>
@@ -205,56 +201,85 @@
             <div class="row justify-content-center connect-button-container">
                 <div class="col-md-9 text-center">
                     <a id="connect-button" class="connect-button">Connect</a>
+                    <a id="disconnect-button" class="disconnect-button">Disconnect</a>
                 </div>
             </div>
             <a href="{% url 'logout' %}" class="logout-button">Logout</a>
         </div>
     </div>
 
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <script>
-        const delay = 2000;
-
-        // function to hide the message after the delay
-        setTimeout(function() {
-            const messageContainer = document.getElementById('message-container');
-            if (messageContainer) {
-                messageContainer.style.display = 'none';
-            }
-        }, delay);
-
+        let webSocket = null;
         const connectButton = document.getElementById('connect-button');
-        connectButton.addEventListener('click', function() {
-            const userTable = document.getElementById('user-table');
+        const disconnectButton = document.getElementById('disconnect-button');
+        const notificationContainer = document.getElementById('notification-container');
+        const userTable = document.getElementById('user-table');
+
+        connectButton.addEventListener('click', connectWebSocket);
+        disconnectButton.addEventListener('click', disconnectWebSocket);
+
+        function connectWebSocket() {
+            if (webSocket !== null && webSocket.readyState === WebSocket.OPEN) {
+                displayNotification('Already connected to WebSocket', 'warning');
+                return;
+            }
+
+            webSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/4/');
+
+            webSocket.onopen = function(event) {
+                displayNotification('WebSocket connected', 'success');
+                connectButton.style.display = 'none';
+                disconnectButton.style.display = 'inline-block';
+                showUserTable();
+            };
+
+            webSocket.onmessage = function(event) {
+                const messageContainer = document.getElementById('message-container');
+                const messageList = messageContainer.querySelector('.messages');
+                const newMessage = document.createElement('li');
+                newMessage.textContent = event.data;
+                messageList.appendChild(newMessage);
+            };
+
+            webSocket.onclose = function(event) {
+                displayNotification('WebSocket disconnected', 'danger');
+                connectButton.style.display = 'inline-block';
+                disconnectButton.style.display = 'none';
+                hideUserTable();
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (webSocket !== null) {
+                webSocket.close();
+                webSocket = null;
+                hideUserTable();
+            }
+        }
+
+
+        function displayNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'notification alert alert-' + type;
+            notification.textContent = message;
+            notificationContainer.appendChild(notification);
+            setTimeout(function() {
+                notification.remove();
+            }, 2000);
+        }
+
+        // Function to show the user table
+        function showUserTable() {
             userTable.style.display = 'block';
+        }
 
-
-            const userName = document.getElementById('suggested-user-name').innerText;
-            const userGender = document.getElementById('suggested-user-gender').innerText;
-            const userCountry = document.getElementById('suggested-user-country').innerText;
-
-            const socket = new WebSocket(`ws://localhost:8000/ws/chat/${userId}/`);
-            socket.onopen = function() {
-                // send the user details as a JSON object
-                console.log('WebSocket connection established.');
-                const userDetails = {
-                    name: userName,
-                    gender: userGender,
-                    country: userCountry
-                };
-                socket.send(JSON.stringify(userDetails));
-            };
-
-            socket.onmessage = function(event) {
-                // handle receiving messages from the server
-                const message = JSON.parse(event.data);
-
-                console.log(message);
-            };
-        });
+        // Function to hide the user table
+        function hideUserTable() {
+            userTable.style.display = 'none';
+        }
     </script>
-
 </body>
 
 </html>
